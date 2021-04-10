@@ -1,16 +1,16 @@
-package com.example.paging3sample
+package com.example.paging3sample.loading
 
 import android.view.ViewGroup
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
 
-class DooolLoadStateAdapter(
+class LoadingAdapter(
     private val retry: () -> Unit
-) : LoadStateAdapter<LoadStateViewHolder>() {
+) : LoadStateAdapter<LoadingViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState) =
-        LoadStateViewHolder(parent, retry)
+        LoadingViewHolder(parent, retry)
 
-    override fun onBindViewHolder(holder: LoadStateViewHolder, loadState: LoadState) =
+    override fun onBindViewHolder(holder: LoadingViewHolder, loadState: LoadState) =
         holder.bind(loadState)
 }

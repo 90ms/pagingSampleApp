@@ -1,12 +1,13 @@
-package com.example.paging3sample
+package com.example.paging3sample.ui
 
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import androidx.paging.*
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.paging3sample.util.printD
+import com.example.paging3sample.adapter.PagingAdapter
+import com.example.paging3sample.R
+import com.example.paging3sample.loading.LoadingAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -14,34 +15,28 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
 
     private val viewModel by viewModels<PagingViewModel>()
-    private val adapter = PagingAdapter()
+    private val adapter =
+        PagingAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         setupData()
-        setListener()
-        setAdapterListener()
+        setPagingListener()
         setupObserver()
     }
 
     private fun setupData() {
         recycler_view.adapter =
-            adapter.withLoadStateHeaderAndFooter(DooolLoadStateAdapter { adapter.retry() },
-                DooolLoadStateAdapter { adapter.retry() })
-
+            adapter.withLoadStateHeaderAndFooter(
+                header = LoadingAdapter { adapter.retry() },
+                footer = LoadingAdapter { adapter.retry() }
+            )
         viewModel.init()
     }
 
-    private fun setListener() {
-        button.setOnClickListener {
-            adapter.refresh()
-        }
-    }
-
-
-    private fun setAdapterListener() {
+    private fun setPagingListener() {
         adapter.apply {
             addLoadStateListener {
                 Timber.d("addLoadStateListener\nprepend:${it.prepend}\nappend:${it.append}\nrefresh:${it.refresh}")
@@ -52,12 +47,6 @@ class MainActivity : AppCompatActivity() {
             removeLoadStateListener {
                 Timber.d("removeLoadStateListener\nprepend:${it.prepend}\nappend:${it.append}\nrefresh:${it.refresh}")
             }
-//            addDataRefreshListener {
-//                "addDataRefreshListener : $it".printD()
-//            }
-//            removeDataRefreshListener {
-//                "removeDataRefreshListener : $it".printD()
-//            }
         }
     }
 
