@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
                 header = LoadingAdapter { adapter.retry() },
                 footer = LoadingAdapter { adapter.retry() }
             )
-        viewModel.init()
+        viewModel.fetchData()
     }
 
     private fun setPagingListener() {

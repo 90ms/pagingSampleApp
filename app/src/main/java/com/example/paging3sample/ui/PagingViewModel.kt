@@ -14,28 +14,33 @@ import kotlinx.coroutines.launch
 
 class PagingViewModel : ViewModel() {
 
-    private val flow = Pager(PagingConfig(pageSize = BaseConst.DEFAULT_PAGING_COUNT)) {
-        SamplePagingSource(PagingRepository())
-    }.flow.map {
-        it.map<PagingModel> { PagingModel.Item(it) }
-            .insertHeaderItem(PagingModel.Header("헤더에요"))
-            .insertFooterItem(PagingModel.Footer("바닥이에요"))
+    val paging: MutableLiveData<PagingData<PagingModel>> = MutableLiveData()
+
+    private val pagingCollection = Pager(
+        PagingConfig(BaseConst.DEFAULT_PAGING_COUNT)
+    ) { SamplePagingSource(PagingRepository()) }.flow.map { pagingData ->
+        pagingData.map<PagingModel> { item ->
+            PagingModel.Item(item)
+        }
+            .insertHeaderItem(
+                PagingModel.Header("헤더에요")
+            )
+            .insertFooterItem(
+                PagingModel.Footer("바닥이에요")
+            )
             .insertSeparators { before, after ->
-                when {
-                    before is PagingModel.Item && after is PagingModel.Item -> {
-                        if (before.value.toInt() % 10 == 0) PagingModel.Separator
-                        else null
-                    }
-                    else -> null
+                if (before is PagingModel.Item && after is PagingModel.Item) {
+                    if (before.value.toInt() % 10 == 0) PagingModel.Separator
+                    else null
+                } else {
+                    null
                 }
             }
     }.cachedIn(viewModelScope)
 
-    val paging: MutableLiveData<PagingData<PagingModel>> = MutableLiveData()
-
-    fun init() {
+    fun fetchData() {
         viewModelScope.launch {
-            flow.collectLatest { pagingData ->
+            pagingCollection.collectLatest { pagingData ->
                 paging.postValue(pagingData)
             }
         }
